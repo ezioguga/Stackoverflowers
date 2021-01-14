@@ -23,11 +23,6 @@ const UserSchema = new mongoose.Schema({
     minlength: 6,
     select: false,
   },
-  role: {
-    type: String,
-    enum: ["user", "publisher"],
-    default: "user",
-  },
   avatar: {
     type: String,
   },
@@ -77,4 +72,4 @@ UserSchema.methods.getResetPasswordToken = function () {
   return resetToken;
 };
 
-module.exports = User = mongoose.model("user", UserSchema);
+module.exports = mongoose.model("User", UserSchema);

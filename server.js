@@ -2,14 +2,15 @@ const express = require("express");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
 const colors = require("colors");
-const errorHandler = require("./middleware/error");
-const connectDB = require("./config/db");
+const cookieParser = require("cookie-parser");
 const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 const xss = require("xss-clean");
 const rateLimit = require("express-rate-limit");
 const hpp = require("hpp");
 const cors = require("cors");
+const errorHandler = require("./middleware/error");
+const connectDB = require("./config/db");
 
 //Load env vars
 dotenv.config({ path: "./config/config.env" });
@@ -18,12 +19,20 @@ dotenv.config({ path: "./config/config.env" });
 connectDB();
 
 // Route files
-const users = require("./routes/users");
+const auth = require("./routes/auth");
 
 const app = express();
 
 // Body parser
 app.use(express.json());
+
+// Cookie parser
+app.use(cookieParser());
+
+// Dev logging middleware
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
+}
 
 // Sanitize data
 app.use(mongoSanitize());
@@ -37,7 +46,7 @@ app.use(xss());
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 mins
-  max: 100, // No of Requests
+  max: 100,
 });
 app.use(limiter);
 
@@ -47,13 +56,8 @@ app.use(hpp());
 // Enable CORS
 app.use(cors());
 
-// Dev logging middleware
-if (process.env.NODE_ENV === "development") {
-  app.use(morgan("dev"));
-}
-
 // Mount routers
-app.use("/api/v1/users", users);
+app.use("/api/v1/auth", auth);
 
 app.use(errorHandler);
 
