@@ -1,3 +1,4 @@
+const path = require("path");
 const express = require("express");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
@@ -21,6 +22,7 @@ connectDB();
 // Route files
 const auth = require("./routes/auth");
 const profile = require("./routes/profile");
+const posts = require("./routes/posts");
 
 const app = express();
 
@@ -57,9 +59,13 @@ app.use(hpp());
 // Enable CORS
 app.use(cors());
 
+// Set static folder
+app.use(express.static(path.join(__dirname, "public")));
+
 // Mount routers
 app.use("/api/v1/auth", auth);
 app.use("/api/v1/profile", profile);
+app.use("/api/v1/posts", posts);
 
 app.use(errorHandler);
 
